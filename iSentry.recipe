@@ -1,0 +1,17 @@
+
+Bootstrap:docker
+From: ubuntu:18.04
+
+%setup
+
+%files
+
+%labels
+
+%environment
+
+%post
+
+%runscript
+
+%test
