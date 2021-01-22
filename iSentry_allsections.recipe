@@ -1,0 +1,73 @@
+#below is the header: this must be included in this order at the top of the file
+Bootstrap:library
+From: ubuntu:18.04
+Stage: build
+
+#all other sections below can appear in any order
+#however, they will be executed in the order below when building the container
+
+#first executed on the host system outside of the container after the base OS has been installed
+#container file system is reference with $SINGULARITY_ROOTFS env variable in setup section
+#executed with elevated previleges
+#example included below for testing
+%setup
+    touch /file1.txt #created in the root file system of the host OS 
+    touch ${SINGULARITY_ROOTFS}/file2.txt #created in the root file system of the container OS
+
+#copy files into the container with greater safety than in %setup
+# example: <source> [<destination>]
+# each line is a pair. <source> can be a path in the host system or a path from a previous stage of the build
+# can also specify to copy files during a certain stage: look up further if necessary
+%files
+    /file1.txt #copy file from host OS root to container root
+    /file1.txt /opt #copy file from host OS root to /opt in the container  
+
+#optional section: may be redundant
+#probably won't need for the purposes of iSentry
+%app
+
+#download files from the internet with tools like git and wget
+#install software and libraries, write config files, create directories, etc
+#example commands below
+#setting environment variable at build time:
+#   redirecting text to $SINGULARITY_ENVIRONMENT will cause it to be written to a file called /.singularity.d/env/91-environment.sh, 
+#   which is then sourced at runtime    
+%post
+    apt-get update && apt-get install -y netcat
+    NOW=`date`
+    echo "export NOW=\"${NOW}\"" >> $SINGULARITY_ENVIRONMENT
+
+#runs at the very end of the build process to validate the container, user specified
+#can skip by building with the --notest option
+#use to test if required programs are in the container: 
+# example: samtools, which if not in the container will stop the build with output "samtools: command not found"
+# To avoid program error codes clogging output stream, can also use syntax "myprog || true"
+%test
+    samtools
+    bwa || true
+
+#allows for defining environment variables that will be set at runtime
+#not available at build-time
+# At build time, the content of the %environment section is written to a file called /.singularity.d/env/90-environment.sh inside of the container.
+#At runtime, scripts in /.singularity/env are sourced in order. This means that variables in the %post section take precedence over those added via %environment.
+%environment
+
+#Contents of this section are written to a file within the container at build time. 
+#this file is executed when the "instance start" command is issued
+%startscript
+
+#contents of this section are written to a file within the container that is executed when the container image is run
+#when the container is invoked, arguments following the container name are passed to the runscript
+#$NOW was set in the post section
+#$* options passed to the container at runtime as a single string
+#$@ options passed to the container at runtime as a quoted array
+%runscript
+    echo "Container was created $NOW"
+    echo "Arguments received: $*"
+    exec echo "$@"
+
+#used to add metadata to the file /.singularity.d/labels.json within the container.
+#general form is a "name value" pair
+#stores metadata
+%labels
+

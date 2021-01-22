@@ -1,17 +1,5 @@
 
 Bootstrap:library
 From: ubuntu:18.04
+Stage: build
 
-%setup
-
-%files
-
-%labels
-
-%environment
-
-%post
-
-%runscript
-
-%test
