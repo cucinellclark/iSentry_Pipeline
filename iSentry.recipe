@@ -3,3 +3,21 @@ Bootstrap:library
 From: ubuntu:18.04
 Stage: build
 
+%help
+    Add helpful information
+
+%setup
+    touch ${SINGULARITY_ROOTFS}/test_file.txt
+    echo "hello world" >> ${SINGULARITY_ROOTFS}/test_file.txt
+
+%files
+    scripts/hello_world.py  /
+
+%environment
+    export TEST_VAR='test build variable'
+
+%runscript
+    python /hello_world.py
+
+%labels
+    CREATOR Clark
