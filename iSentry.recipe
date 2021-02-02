@@ -13,6 +13,9 @@ Stage: build
 %files
     scripts/hello_world.py  /
 
+%post
+    sudo apt install python3.8	
+
 %environment
     export TEST_VAR='test build variable'
 
