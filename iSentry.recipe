@@ -7,20 +7,28 @@ Stage: build
     Add helpful information
 
 %setup
-    touch ${SINGULARITY_ROOTFS}/test_file.txt
-    echo "hello world" >> ${SINGULARITY_ROOTFS}/test_file.txt
+    mkdir ${SINGULARITY_ROOTFS}/opt/bin
+    mkdir ${SINGULARITY_ROOTFS}/opt/src
 
 %files
-    scripts/hello_world.py  /
+    /home/centos/isentry_pipeline_singularity/Programs/SPAdes/SPAdes-3.15.0-Linux /opt/src 
+    /home/centos/isentry_pipeline_singularity/Programs/diamond/diamond /opt/bin
+    /home/centos/isentry_pipeline_singularity/Programs/kraken2 /opt/src
 
 %post
-    sudo apt install python3.8	
+    ###setup dependencies
+    #apt-get install -y software-properties-common
+    #apt-get install -y wget
+
+    ###setup links
+    ln -s /opt/src/SPAdes-3.15.0-Linux/bin/spades.py /opt/bin/spades.py
+    ln -s /opt/src/kraken2/kraken2 /opt/bin/kraken2
 
 %environment
     export TEST_VAR='test build variable'
+    export PATH=/opt/bin:$PATH
 
 %runscript
-    python /hello_world.py
 
 %labels
     CREATOR Clark
