@@ -12,23 +12,34 @@ Stage: build
 
 %files
     /home/centos/isentry_pipeline_singularity/Programs/SPAdes/SPAdes-3.15.0-Linux /opt/src 
-    /home/centos/isentry_pipeline_singularity/Programs/diamond/diamond /opt/bin
+    /home/centos/isentry_pipeline_singularity/Programs/diamond /opt/src
     /home/centos/isentry_pipeline_singularity/Programs/kraken2 /opt/src
+    /home/centos/isentry_pipeline_singularity/Programs/mash/mash-Linux64-v2.2/mash /opt/src
+    /home/centos/isentry_pipeline_singularity/Programs/Maxbin/MaxBin-2.2.7 /opt/src
 
 %post
     ###setup dependencies
-    #apt-get install -y software-properties-common
+    apt-get clean && apt-get update && apt-get install apt-utils -y
+    apt-get install -y software-properties-common
+    add-apt-repository universe
+    apt-get install dialog -y
+    apt-get install -y locales    
+    locale-gen en_US.UTF-8
+
+    #
     #apt-get install -y wget
 
     ###setup links
     ln -s /opt/src/SPAdes-3.15.0-Linux/bin/spades.py /opt/bin/spades.py
+    ln -s /opt/src/diamond/diamond /opt/bin/diamond
     ln -s /opt/src/kraken2/kraken2 /opt/bin/kraken2
+    ln -s /opt/src/mash/mash /opt/bin/mash
+    ln -s /opt/src/MaxBin-2.2.7/run_MaxBin.pl /opt/bin/run_MaxBin.pl
 
 %environment
-    export TEST_VAR='test build variable'
     export PATH=/opt/bin:$PATH
 
 %runscript
 
 %labels
-    CREATOR Clark
+    CREATOR "Clark Cucinell"
